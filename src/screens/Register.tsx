@@ -7,6 +7,7 @@ import { useAppDispatch } from '../redux/hooks';
 import { registerUser, resetError } from '../redux/reducers/authReducer';
 import { useSelector } from 'react-redux';
 import { RootState } from '../redux/store';
+import Loader from '../components/Loader';
 
 //FORM VALIDATION SCHEMA
 const signUpSchema = Yup.object().shape({
@@ -38,7 +39,7 @@ const Register: React.FC<{}> = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
-  const { token, error } = useSelector((state: RootState) => state.auth);
+  const { token, error, state } = useSelector((state: RootState) => state.auth);
 
   const userRegister = (values: SignUpValues) => {
     dispatch(registerUser(values));
@@ -56,6 +57,7 @@ const Register: React.FC<{}> = () => {
 
   return (
     <section>
+      {state === 'loading' && <Loader />}
       <div className="container ">
         <Formik
           initialValues={initialValues}

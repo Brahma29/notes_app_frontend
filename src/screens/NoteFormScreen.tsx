@@ -11,6 +11,7 @@ import { updateNote } from '../redux/reducers/updateNoteReducer';
 import { createNote } from '../redux/reducers/createNoteReducer';
 import { createNoteReset } from '../redux/reducers/createNoteReducer';
 import { updateNoteReset } from '../redux/reducers/updateNoteReducer';
+import Loader from '../components/Loader';
 
 //Note Form Validation Schema
 const noteFormSchema = Yup.object().shape({
@@ -81,54 +82,59 @@ const NoteFormScreen = () => {
   };
 
   return (
-    <div className="container">
-      <div className="col-md-4 col-12 mx-auto">
-        <h1 className="mt-5 mb-4">
-          {id ? 'Update your note' : 'Add New Note'}
-        </h1>
-        <p>{createNoteError}</p>
-        <p>{updateNoteError}</p>
-        <p>{singleNoteError}</p>
-        <Formik
-          initialValues={id && note ? note : initialValues}
-          validationSchema={noteFormSchema}
-          onSubmit={handleSubmit}
-        >
-          <Form>
-            <div className="form-group mb-2">
-              <label htmlFor="title">Title</label>
-              <Field
-                type="text"
-                className="form-control"
-                name="title"
-                id="title"
-                placeholder="Enter title"
-              />
-              <div className="text-danger">
-                <ErrorMessage name="title" />
+    <>
+      {(createNoteState === 'loading' || updateNoteState === 'loading') && (
+        <Loader />
+      )}
+      <div className="container">
+        <div className="col-md-4 col-12 mx-auto">
+          <h1 className="mt-5 mb-4">
+            {id ? 'Update your note' : 'Add New Note'}
+          </h1>
+          <p>{createNoteError}</p>
+          <p>{updateNoteError}</p>
+          <p>{singleNoteError}</p>
+          <Formik
+            initialValues={id && note ? note : initialValues}
+            validationSchema={noteFormSchema}
+            onSubmit={handleSubmit}
+          >
+            <Form>
+              <div className="form-group mb-2">
+                <label htmlFor="title">Title</label>
+                <Field
+                  type="text"
+                  className="form-control"
+                  name="title"
+                  id="title"
+                  placeholder="Enter title"
+                />
+                <div className="text-danger">
+                  <ErrorMessage name="title" />
+                </div>
               </div>
-            </div>
-            <div className="form-group mb-2">
-              <label htmlFor="description">Description</label>
-              <Field
-                type="textarea"
-                className="form-control"
-                id="description"
-                name="description"
-                rows={3}
-                placeholder="Enter description"
-              ></Field>
-              <div className="text-danger">
-                <ErrorMessage name="description" />
+              <div className="form-group mb-2">
+                <label htmlFor="description">Description</label>
+                <Field
+                  type="textarea"
+                  className="form-control"
+                  id="description"
+                  name="description"
+                  rows={3}
+                  placeholder="Enter description"
+                ></Field>
+                <div className="text-danger">
+                  <ErrorMessage name="description" />
+                </div>
               </div>
-            </div>
-            <button type="submit" className="btn btn-primary mt-2">
-              {id ? 'Update' : 'Add Note'}
-            </button>
-          </Form>
-        </Formik>
+              <button type="submit" className="btn btn-primary mt-2">
+                {id ? 'Update' : 'Add Note'}
+              </button>
+            </Form>
+          </Formik>
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 

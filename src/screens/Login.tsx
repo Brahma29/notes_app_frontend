@@ -7,6 +7,7 @@ import { loginUser, resetError } from '../redux/reducers/authReducer';
 import { useAppDispatch } from '../redux/hooks';
 import { useSelector } from 'react-redux';
 import { RootState } from '../redux/store';
+import Loader from '../components/Loader';
 
 //SCHEMA TO VALIDATE THE FIELDS
 const loginSchema = Yup.object().shape({
@@ -27,7 +28,7 @@ const Login = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
-  const { token, error } = useSelector((state: RootState) => state.auth);
+  const { token, error, state } = useSelector((state: RootState) => state.auth);
 
   const userLogin = (values: LoginValues) => {
     dispatch(loginUser(values));
@@ -45,7 +46,8 @@ const Login = () => {
 
   return (
     <section>
-      <div className="container ">
+      {state === 'loading' && <Loader />}
+      <div className="container">
         <Formik
           initialValues={initialValues}
           validationSchema={loginSchema}

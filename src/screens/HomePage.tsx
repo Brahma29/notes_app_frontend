@@ -6,6 +6,7 @@ import { RootState } from '../redux/store';
 import { getAllNotes } from '../redux/reducers/notesReducer';
 import { useAppDispatch } from '../redux/hooks';
 import { deleteNoteById } from '../redux/reducers/deleteNoteReducer';
+import Loader from '../components/Loader';
 
 const HomePage = () => {
   const { notes, state, error } = useSelector(
