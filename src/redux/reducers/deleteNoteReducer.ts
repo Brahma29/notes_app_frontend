@@ -4,7 +4,7 @@ import AxiosInstance from '../../helpers/AxiosInstance';
 interface InitialState {
   state: 'idle' | 'loading' | 'succeeded' | 'rejected';
   message: string;
-  error: string | null;
+  error: string | null | undefined;
 }
 
 const initialState: InitialState = {
@@ -16,8 +16,12 @@ const initialState: InitialState = {
 export const deleteNoteById = createAsyncThunk(
   'notes/deleteNoteById',
   async (noteId: string) => {
-    const { data } = await AxiosInstance.delete(`/notes/${noteId}`);
-    return data;
+    try {
+      const { data } = await AxiosInstance.delete(`/notes/${noteId}`);
+      return data;
+    } catch (error: any) {
+      throw new Error(error.response.data.message);
+    }
   }
 );
 
@@ -36,7 +40,7 @@ export const deleteNoteSlice = createSlice({
     });
     builder.addCase(deleteNoteById.rejected, (state, action) => {
       state.state = 'rejected';
-      state.error = action.payload as string;
+      state.error = action.error.message;
     });
   },
 });

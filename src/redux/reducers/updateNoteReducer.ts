@@ -17,7 +17,7 @@ interface UpdateNotePayload {
 interface UpdateNoteState {
   note: Note | null;
   state: 'idle' | 'loading' | 'succeeded' | 'rejected';
-  error: string | null;
+  error: string | null | undefined;
 }
 
 const initialState: UpdateNoteState = {
@@ -29,8 +29,12 @@ const initialState: UpdateNoteState = {
 export const updateNote = createAsyncThunk(
   'notes/updateNote',
   async ({ id, updatedNote }: UpdateNotePayload) => {
-    const { data } = await AxiosInstance.put(`/notes/${id}`, updatedNote);
-    return data;
+    try {
+      const { data } = await AxiosInstance.put(`/notes/${id}`, updatedNote);
+      return data;
+    } catch (error: any) {
+      throw new Error(error.response.data.message);
+    }
   }
 );
 
@@ -54,7 +58,7 @@ const updateNoteSlice = createSlice({
       })
       .addCase(updateNote.rejected, (state, action) => {
         state.state = 'rejected';
-        state.error = action.error.message || 'Something went wrong.';
+        state.error = action.error.message;
       });
   },
 });

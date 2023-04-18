@@ -11,18 +11,24 @@ interface Note {
 interface InitialState {
   note: Note | null;
   state: 'idle' | 'loading' | 'rejected';
+  error: string | null | undefined;
 }
 
 const initialState: InitialState = {
   note: null,
   state: 'idle',
+  error: null,
 };
 
 export const getNoteById = createAsyncThunk(
   'notes/getNoteById',
   async (noteId: string) => {
-    const { data } = await AxiosInstance.get(`/notes/${noteId}`);
-    return data;
+    try {
+      const { data } = await AxiosInstance.get(`/notes/${noteId}`);
+      return data;
+    } catch (error: any) {
+      throw new Error(error.response.data.message);
+    }
   }
 );
 
@@ -38,8 +44,9 @@ const getNoteByIdSlice = createSlice({
       state.state = 'idle';
       state.note = action.payload;
     });
-    builder.addCase(getNoteById.rejected, (state) => {
+    builder.addCase(getNoteById.rejected, (state, action) => {
       state.state = 'rejected';
+      state.error = action.error.message;
     });
   },
 });

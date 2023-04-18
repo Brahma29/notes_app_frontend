@@ -4,7 +4,7 @@ import { SignUpValues } from '../interfaces/FormValues';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { useAppDispatch } from '../redux/hooks';
-import { registerUser } from '../redux/reducers/authReducer';
+import { registerUser, resetError } from '../redux/reducers/authReducer';
 import { useSelector } from 'react-redux';
 import { RootState } from '../redux/store';
 
@@ -38,11 +38,15 @@ const Register: React.FC<{}> = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
-  const { token } = useSelector((state: RootState) => state.auth);
+  const { token, error } = useSelector((state: RootState) => state.auth);
 
   const userRegister = (values: SignUpValues) => {
     dispatch(registerUser(values));
   };
+
+  setTimeout(() => {
+    dispatch(resetError());
+  }, 3000);
 
   useEffect(() => {
     if (token) {
@@ -56,13 +60,14 @@ const Register: React.FC<{}> = () => {
         <Formik
           initialValues={initialValues}
           validationSchema={signUpSchema}
-          onSubmit={(values, actions) => {
+          onSubmit={(values) => {
             userRegister(values);
           }}
         >
           {() => (
             <Form className="col-md-4 mx-auto py-5 mt-md-5 col-12">
               <h2 className="mb-4">SIGN UP</h2>
+              <p className="text-danger">{error}</p>
               <div className="mb-3">
                 <label htmlFor="fullName" className="form-label">
                   Full Name

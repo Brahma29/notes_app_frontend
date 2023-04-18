@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { LoginValues } from '../interfaces/FormValues';
-import { loginUser } from '../redux/reducers/authReducer';
+import { loginUser, resetError } from '../redux/reducers/authReducer';
 import { useAppDispatch } from '../redux/hooks';
 import { useSelector } from 'react-redux';
 import { RootState } from '../redux/store';
@@ -27,11 +27,15 @@ const Login = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
-  const { token } = useSelector((state: RootState) => state.auth);
+  const { token, error } = useSelector((state: RootState) => state.auth);
 
   const userLogin = (values: LoginValues) => {
     dispatch(loginUser(values));
   };
+
+  setTimeout(() => {
+    dispatch(resetError());
+  }, 3000);
 
   useEffect(() => {
     if (token) {
@@ -50,6 +54,7 @@ const Login = () => {
           {() => (
             <Form className="col-md-4 mx-auto py-5 mt-md-5 col-12">
               <h2 className="mb-4">LOGIN</h2>
+              <p className="text-danger">{error}</p>
               <div className="mb-3">
                 <label htmlFor="exampleInputEmail1" className="form-label">
                   Email address

@@ -8,8 +8,10 @@ import { useAppDispatch } from '../redux/hooks';
 import { deleteNoteById } from '../redux/reducers/deleteNoteReducer';
 
 const HomePage = () => {
-  const { notes, state } = useSelector((state: RootState) => state.notes);
-  const { state: deleteNoteState } = useSelector(
+  const { notes, state, error } = useSelector(
+    (state: RootState) => state.notes
+  );
+  const { state: deleteNoteState, error: deleteNoteError } = useSelector(
     (state: RootState) => state.deleteNote
   );
 
@@ -51,7 +53,12 @@ const HomePage = () => {
                 </Link>
               </div>
               <div className="row ">
-                {notes.length === 0 ? (
+                {error || deleteNoteError ? (
+                  <p className="fs-3 fw-bold">
+                    {error}
+                    {deleteNoteError}
+                  </p>
+                ) : notes.length === 0 ? (
                   <h3>No Notes to show</h3>
                 ) : (
                   notes.map((note) => (

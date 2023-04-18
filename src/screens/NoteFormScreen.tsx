@@ -26,12 +26,16 @@ var initialValues: NoteFormProps = {
 
 const NoteFormScreen = () => {
   const dispatch = useAppDispatch();
-  const { state, note } = useSelector((state: RootState) => state.singleNote);
-  const { state: createNoteState } = useSelector(
+  const {
+    state,
+    note,
+    error: singleNoteError,
+  } = useSelector((state: RootState) => state.singleNote);
+  const { state: createNoteState, error: createNoteError } = useSelector(
     (state: RootState) => state.createNote
   );
 
-  const { state: updateNoteState } = useSelector(
+  const { state: updateNoteState, error: updateNoteError } = useSelector(
     (state: RootState) => state.updateNote
   );
 
@@ -58,13 +62,6 @@ const NoteFormScreen = () => {
     }
   }, [updateNoteState, createNoteState, navigate, dispatch]);
 
-  // useEffect(() => {
-  //   if (note) {
-  //     initialValues.title = note?.title;
-  //     initialValues.description = note?.description;
-  //   }
-  // }, [note]);
-
   //Loading
 
   if (state === 'loading') {
@@ -89,6 +86,9 @@ const NoteFormScreen = () => {
         <h1 className="mt-5 mb-4">
           {id ? 'Update your note' : 'Add New Note'}
         </h1>
+        <p>{createNoteError}</p>
+        <p>{updateNoteError}</p>
+        <p>{singleNoteError}</p>
         <Formik
           initialValues={id && note ? note : initialValues}
           validationSchema={noteFormSchema}

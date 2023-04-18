@@ -7,6 +7,7 @@ interface InitialState {
   token: string | null;
   user: User | null;
   state: 'idle' | 'loading' | 'failed';
+  error: string | undefined;
 }
 
 interface User {
@@ -18,25 +19,34 @@ interface User {
 const initialState: InitialState = {
   token: localStorage.getItem('token') || null,
   user: null,
+  error: '',
   state: 'idle',
 };
 
 export const loginUser = createAsyncThunk(
   'userLogin',
   async ({ email, password }: { email: string; password: string }) => {
-    const { data } = await AxiosInstance.post('/auth/login', {
-      email,
-      password,
-    });
-    return data;
+    try {
+      const { data } = await AxiosInstance.post('/auth/login', {
+        email,
+        password,
+      });
+      return data;
+    } catch (error: any) {
+      throw new Error(error.response.data.message);
+    }
   }
 );
 
 export const registerUser = createAsyncThunk(
   'createuser',
   async (user: SignUpValues) => {
-    const { data } = await AxiosInstance.post('/auth/signup', user);
-    return data;
+    try {
+      const { data } = await AxiosInstance.post('/auth/signup', user);
+      return data;
+    } catch (error: any) {
+      throw new Error(error.response.data.message);
+    }
   }
 );
 
@@ -47,6 +57,9 @@ const authSlice = createSlice({
     logOut: (state) => {
       state.token = null;
       localStorage.removeItem('token');
+    },
+    resetError: (state) => {
+      state.error = undefined;
     },
   },
   extraReducers: (builder) => {
@@ -62,8 +75,9 @@ const authSlice = createSlice({
         localStorage.setItem('token', action.payload.token);
       }
     );
-    builder.addCase(loginUser.rejected, (state) => {
+    builder.addCase(loginUser.rejected, (state, action) => {
       state.state = 'failed';
+      state.error = action.error.message;
     });
     builder.addCase(registerUser.pending, (state) => {
       state.state = 'loading';
@@ -76,12 +90,13 @@ const authSlice = createSlice({
         state.user = action.payload.user;
       }
     );
-    builder.addCase(registerUser.rejected, (state) => {
+    builder.addCase(registerUser.rejected, (state, action) => {
       state.state = 'failed';
+      state.error = action.error.message;
     });
   },
 });
 
-export const { logOut } = authSlice.actions;
+export const { logOut, resetError } = authSlice.actions;
 
 export default authSlice.reducer;

@@ -17,17 +17,23 @@ interface Note {
 interface InitialState {
   notes: Note[];
   state: 'idle' | 'loading' | 'rejected';
+  error: string | undefined;
 }
 
 const initialState: InitialState = {
   notes: [],
   state: 'idle',
+  error: '',
 };
 
 //Get All Notes
 export const getAllNotes = createAsyncThunk('notes/getAllNotes', async () => {
-  const { data } = await AxiosInstance.get('/notes');
-  return data;
+  try {
+    const { data } = await AxiosInstance.get('/notes');
+    return data;
+  } catch (error: any) {
+    throw new Error(error.response.data.message);
+  }
 });
 
 const notesSlice = createSlice({
@@ -42,8 +48,9 @@ const notesSlice = createSlice({
       state.state = 'idle';
       state.notes = action.payload;
     });
-    builder.addCase(getAllNotes.rejected, (state) => {
+    builder.addCase(getAllNotes.rejected, (state, action) => {
       state.state = 'rejected';
+      state.error = action.error.message;
     });
   },
 });

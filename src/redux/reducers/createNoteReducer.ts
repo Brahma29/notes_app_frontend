@@ -12,20 +12,24 @@ interface Note {
 interface InitialState {
   note: Note | null;
   state: 'idle' | 'loading' | 'succeeded' | 'rejected';
-  error: string | null | {};
+  error: string | undefined;
 }
 
 const initialState: InitialState = {
   note: null,
   state: 'idle',
-  error: null,
+  error: '',
 };
 
 export const createNote = createAsyncThunk(
   'notes/createNote',
   async (noteForm: NoteFormProps) => {
-    const response = await AxiosInstance.post('/notes', noteForm);
-    return response.data as Note;
+    try {
+      const response = await AxiosInstance.post('/notes', noteForm);
+      return response.data as Note;
+    } catch (error: any) {
+      throw new Error(error.response.data.message);
+    }
   }
 );
 
@@ -34,7 +38,7 @@ const createNoteSlice = createSlice({
   initialState,
   reducers: {
     createNoteReset: (state) => {
-      state.error = null;
+      state.error = '';
       state.note = null;
       state.state = 'idle';
     },
@@ -43,7 +47,7 @@ const createNoteSlice = createSlice({
     builder
       .addCase(createNote.pending, (state) => {
         state.state = 'loading';
-        state.error = null;
+        state.error = '';
       })
       .addCase(createNote.fulfilled, (state, action) => {
         state.state = 'succeeded';
@@ -51,7 +55,7 @@ const createNoteSlice = createSlice({
       })
       .addCase(createNote.rejected, (state, action) => {
         state.state = 'rejected';
-        state.error = action.payload ? action.payload : 'An error occurred';
+        state.error = action.error.message;
       });
   },
 });
